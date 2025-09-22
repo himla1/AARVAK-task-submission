@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Scramble</title>
+</head>
+<style>
+    body {
+        background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+        color: #c084fc;
+        font-family: Arial, Helvetica, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+    }
+
+    .grid::before {
+        content: '';
+        position:absolute;
+        width: 40%;
+        height: 60%;
+        background: radial-gradient(circle, #0f0b16, transparent);
+        box-shadow: 0 0 20px #a855f7;
+        border-radius: 300px;
+        animation: rotateBg 10s linear infinite;
+        z-index: -1;
+    }
+
+    @keyframes rotateBg {
+        0% {
+            transform: rotate(0deg) translate(0, 0);
+        }
+
+        100% {
+            transform: rotate(360deg) translate(0, 0);
+        }
+    }
+
+    h1 {
+        margin-top: 3rem;
+        font-size: 3rem;
+        margin-bottom: 25px;
+        text-shadow: 0 0 15px #8b5cf6, 0 0 30px #c084fc;
+    }
+
+    .instructions {
+        text-align: center;
+    }
+
+    h2 {
+        font-size: 30px;
+        color: #eab308;
+    }
+
+    p {
+        font-size: 24px;
+        color: rgb(163, 219, 58);
+    }
+
+    .ins {
+        color: rgb(180, 192, 168);
+        font-size: 26px;
+        animation: glow 2s ease-in-out infinite;
+
+    }
+    pre{
+        color: #22c55e;
+        font-size: 24px
+    }
+
+    @keyframes glow {
+        0% {
+            color: rgb(124, 121, 121);
+        }
+
+        25% {
+            color: #22c55e;
+        }
+
+        50% {
+            color: #8b5cf6;
+        }
+
+        75% {
+            color: aquamarine;
+        }
+    }
+
+    .grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .row {
+        display: flex;
+        gap: 12px;
+    }
+
+    .tile {
+        width: 55px;
+        height: 55px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 26px;
+        text-transform: uppercase;
+        border: 2px solid #444;
+        border-radius: 8px;
+        background: #111;
+        outline: none;
+        color: aliceblue;
+        caret-color: transparent;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .tile.filled {
+        transform: scale(1.05);
+        box-shadow: 0 0 12px #c084fc;
+    }
+
+    .tile.correct {
+        background-color: #22c55e !important;
+        color: white;
+    }
+
+    .tile.present {
+        background-color: #eab308 !important;
+        color: black;
+    }
+
+    .tile.absent {
+        background-color: #374151 !important;
+        color: white;
+    }
+
+    .tile[contenteditable="true"]:hover {
+        box-shadow: 0 0 15px #c084fc;
+        transform: scale(1.08);
+    }
+
+
+    /* popup style */
+    .popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 10;
+    }
+
+    .popup.show {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .popup-content {
+        background: #1f2937;
+        padding: 30px 40px;
+        border-radius: 12px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 0 20px rgba(192, 132, 252, 0.8);
+        animation: scaleIn 0.3s ease;
+    }
+
+    .popup-content h2 {
+        margin: 0 0 15px;
+        font-size: 2rem;
+    }
+
+    .popup-content button {
+        margin-top: 15px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        background: #c084fc;
+        color: black;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .popup-content button:hover {
+        background: #a855f7;
+    }
+
+    @keyframes scaleIn {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+</style>
+
+<body>
+    <h1>Word Scramble game</h1>
+    <div class="grid">
+        <div class="row-0 row">
+            <div class="tile tile-1"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+        </div>
+        <div class="row-1 row">
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+        </div>
+        <div class="row-2 row">
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+        </div>
+        <div class="row-3 row">
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+        </div>
+        <div class="row-4 row">
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+            <div class="tile"></div>
+        </div>
+    </div>
+    <div class="instructions">
+        <h2>Guess the Hidden Word</h2>
+        <p>
+            The rules are very simple: You have to guess the hidden word of 6 letters in 5 tries. To get started, just
+            type any word on the first line. If the letter is guessed correctly and is in the correct place, it will be
+            highlighted in green, if the letter is in the word, but in the wrong place - in yellow, and if the letter is
+            not in the word, it will remain gray. </p>
+        <span class="ins">Press enter to know if You guessed right</span>
+    </div>
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <h2 id="popup-message"></h2>
+            <button onclick="closePopup()">Play Again</button>
+        </div>
+    </div>
+    <pre>
+        1️⃣ Flow of the Game (Flowchart)
+
+Step-by-step:
+
+1. Start → Initialize game
+
+2. Pick a random 6-letter word from the word list → targetWord
+
+3. Set currentRow = 0, currentCol = 0
+
+4. Display first empty row for user input
+
+5. User types a letter → auto-focus moves to next tile
+
+6. Check if row is complete
+
+   • If not → wait for more letters
+
+   • yes → press Enter → checkGuess()
+
+7. Check guess vs targetWord
+
+   → For each letter:
+
+       • If correct and correct place → mark green (.correct)
+
+       • If correct but wrong place → mark yellow (.present)
+
+       • If not in word → mark gray (.absent)
+
+8. Check for win
+
+    • If guess matches targetWord → show Win popup → End
+
+9. Check for remaining rows
+
+    • If rows left → move to next row (currentRow++)
+
+    • Else → show Game Over popup → End
+
+10. Repeat from step 5 until game ends
+    </pre>
+
+
+
+    <script>
+        // initials for game working
+        const words = [
+            "PLANET", "MARKER", "PUZZLE", "OBJECT", "BOTTLE", "AARVAK", "HIDDEN",
+            "MAGNET", "BRIGHT", "PYRAMI", "FUSION", "GALAXY", "NEXUSX", "PIXELS", "VECTOR",
+            "MATRIX", "VORTEX", "COSMIC", "SPHERE", "RANDOM", "THRILL", "CIPHER", "QUANTA",
+            "STRIKE", "SHADOW", "JUNGLE", "FALCON", "PYTHON", "HUNTER", "BINARY", "CYBERX"
+        ];
+
+        const targetWord = words[Math.floor(Math.random() * words.length)].toUpperCase();
+        const wordLength = 6;
+        const rows = document.querySelectorAll('.row');
+        const maxRows = rows.length;
+        let currentRow = 0;
+        let currentCol = 0;
+
+        // row edit k liye func
+        function setRowEditable(rowIndex) {
+            rows.forEach((rowEl, r) => {
+                const tiles = rowEl.querySelectorAll('.tile');
+                tiles.forEach((tile, c) => {
+                    tile.contentEditable = (r === rowIndex);
+                    tile.spellcheck = false;
+                    tile.dataset.row = r;
+                    tile.dataset.col = c;
+                    tile.innerText = (tile.innerText || "").toUpperCase().replace(/[^A-Z]/g, '').slice(0, 1);
+                    tile.classList.remove('correct', 'present', 'absent', 'filled');
+                });
+            });
+            currentCol = 0; // reset column when changing row
+            const firstTile = rows[rowIndex].querySelector('.tile');
+            if (firstTile) firstTile.focus();
+        }
+
+        // page load pe focus on tile 1
+        setRowEditable(0);
+        const firstTile = rows[0].querySelector('.tile');
+        if (firstTile) firstTile.focus();
+
+        // listerners hr tile k liye
+        rows.forEach((rowEl, r) => {
+            const tiles = rowEl.querySelectorAll('.tile');
+            tiles.forEach((tile, c) => {
+                // input: keep single letter, uppercase, move focus
+                tile.addEventListener('input', () => {
+                    let ch = tile.innerText.replace(/[^a-zA-Z]/g, '').slice(0, 1).toUpperCase();
+                    tile.innerText = ch;
+                    if (ch) {
+                        tile.classList.add('filled');
+                        currentCol = c + 1; // update current column
+                        if (c < wordLength - 1) tiles[c + 1].focus();
+                    }
+                });
+
+
+                // keydowns handling enter , backspace 
+                tile.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        checkGuess();
+                        return;
+                    }
+
+                    if (e.key === 'Backspace') {
+                        e.preventDefault();
+                        if (tile.innerText !== '') {
+                            tile.innerText = '';
+                            tile.classList.remove('filled');
+                        } else if (c > 0) {
+                            tiles[c - 1].innerText = '';
+                            tiles[c - 1].focus();
+                            tiles[c - 1].classList.remove('filled');
+                        }
+                        return;
+                    }
+
+                    // arrow navigation
+                    if (e.key === 'ArrowLeft' && c > 0) {
+                        e.preventDefault();
+                        tiles[c - 1].focus();
+                    } else if (e.key === 'ArrowRight' && c < wordLength - 1) {
+                        e.preventDefault();
+                        tiles[c + 1].focus();
+                    }
+
+                    // allow only letters, navigation keys and backspace/enter
+                    if (e.key.length === 1 && !/[a-zA-Z]/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+
+                // ek row pe hi focus 
+                tile.addEventListener('focus', () => {
+                    if (parseInt(tile.dataset.row, 10) !== currentRow) {
+                        // move focus back to first tile of current row
+                        const fallback = rows[currentRow].querySelector('.tile');
+                        if (fallback) fallback.focus();
+                    }
+                });
+            });
+        });
+
+        // for guessing
+        function checkGuess() {
+            // incomplete  word handling
+            if (currentCol < wordLength) return;
+
+            const tiles = document.querySelectorAll(`.row-${currentRow} .tile`);
+            let guess = "";
+            tiles.forEach(tile => guess += tile.innerText.toUpperCase());
+
+            //  Win check
+            if (guess === targetWord) {
+                tiles.forEach(tile => tile.style.backgroundColor = "green");
+                showPopup("🎉 You Win!");
+                return;
+            }
+
+            //  Marking with duplicate handling
+            let targetArray = targetWord.split("");
+            let guessArray = guess.split("");
+
+            // Exact matches (Green)
+            guessArray.forEach((letter, i) => {
+                if (letter === targetArray[i]) {
+                    tiles[i].style.backgroundColor = "green";
+                    targetArray[i] = null; // remove from pool
+                    guessArray[i] = null;
+                }
+            });
+
+            // Wrong place matches (Yellow)
+            guessArray.forEach((letter, i) => {
+                if (letter && targetArray.includes(letter)) {
+                    tiles[i].style.backgroundColor = "gold";
+                    targetArray[targetArray.indexOf(letter)] = null;
+                } else if (letter) {
+                    tiles[i].style.backgroundColor = "lightgrey"; // not in word
+                }
+            });
+
+            // Move to next row
+            currentRow++;
+            if (currentRow < maxRows) {
+                setRowEditable(currentRow); // enable next row
+            } else {
+                showPopup(`❌ Game Over! The word was ${targetWord}`);
+            }
+
+        }
+
+
+        //popup win or loss k baad
+        function showPopup(message) {
+            const popup = document.getElementById("popup");
+            const msg = document.getElementById("popup-message");
+            if (!popup || !msg) {
+                alert(message); // fallback
+                return;
+            }
+            msg.innerText = message;
+            popup.classList.add("show");
+        }
+
+        function closePopup() {
+            const popup = document.getElementById("popup");
+            if (popup) popup.classList.remove("show");
+            // restart the page/game:
+            location.reload();
+        }
+    </script>
+
+
+
+</body>
+
+</html>
