@@ -22,7 +22,7 @@ This is a **web-based Word Scramble game** where players guess hidden words by r
 
 ## How to Access
 The live webpage can be accessed here:  
-[Live Demo](https://yourusername.github.io/repository-name/)
+[Live Demo](https://himla1.github.io/AARVAK-task-submission/)
 
 ## Folder Structure
 
